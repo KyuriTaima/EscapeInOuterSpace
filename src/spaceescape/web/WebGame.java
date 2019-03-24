@@ -22,25 +22,24 @@ public class WebGame {
     private static List<Player> players = new ArrayList<>();
     private static int activePlayerRank = 0;
     private int turn;
-    private GameService gameService;
     private static WebGame webgame;
+    private static List<String> messages = new ArrayList<>();
 
 
-    public WebGame(String name, BoardMap map, List<Player> players, GameService gameService) {
+    public WebGame(String name, BoardMap map, List<Player> players) {
         this.name = name;
         this.map = map;
         this.players.addAll(players);
-        this.gameService = gameService;
         this.turn = 0;
     }
 
-    public WebGame(String name, List<Player> players, GameService gameService) {
-        this(name,new BoardMap(), players, gameService);
+    public WebGame(String name, List<Player> players) {
+        this(name,new BoardMap(), players);
         initGame();
     }
     
     public static void config(String name, List<Player> players) {
-    	webgame = new WebGame(name, players, null);
+    	webgame = new WebGame(name, players);
     }
     
     public static WebGame getInstance() {
@@ -81,30 +80,30 @@ public class WebGame {
 	    		boolean isInit = false;
 	    		while(!isInit) {
 			    	Random rand = new Random(); 
-			    	int nombreAleatoire = rand.nextInt(players.size()) + 1;
+			    	int nombreAleatoire = rand.nextInt(4) + 1;
 			    	
 			    	switch(nombreAleatoire) {
 				    	case 1:
 				    		if(!lurkExists()) {
-					    		players.get(i).setCharacter(new Lurker());
+					    		this.players.get(i).setCharacter(new Lurker());
 					    		isInit = true;
 				    		}
 				    		break;
 				    	case 2:
 				    		if(!praetExists()) {
-					    		players.get(i).setCharacter(new Praetorian());
+					    		this.players.get(i).setCharacter(new Praetorian());
 					    		isInit = true;
 				    		}
 				    		break;
 				    	case 3:
 				    		if(!soldierExists()) {
-					    		players.get(i).setCharacter(new Soldier());
+					    		this.players.get(i).setCharacter(new Soldier());
 					    		isInit = true;
 				    		}
 				    		break;
 				    	case 4:
 				    		if(!engineerExists()) {
-					    		players.get(i).setCharacter(new Engineer());
+					    		this.players.get(i).setCharacter(new Engineer());
 					    		isInit = true;
 				    		}
 				    		break;
@@ -134,32 +133,32 @@ public class WebGame {
     }
  
 	private boolean lurkExists() {
- 	for (int i=0; i<4; i++) {
- 		if(this.players.get(i).getCharacter() instanceof Lurker) {
+ 	for (int i=0; i<players.size(); i++) {
+ 		if(players.get(i).getCharacter() instanceof Lurker) {
  			return true;
  		}
  	}
 		return false;
  }
 	private boolean praetExists() {
- 	for (int i=0; i<4; i++) {
- 		if(this.players.get(i).getCharacter() instanceof Praetorian) {
+ 	for (int i=0; i<players.size(); i++) {
+ 		if(players.get(i).getCharacter() instanceof Praetorian) {
  			return true;
  		}
  	}
 		return false;
  }
 	private boolean soldierExists() {
- 	for (int i=0; i<4; i++) {
- 		if(this.players.get(i).getCharacter() instanceof Soldier) {
+ 	for (int i=0; i<players.size(); i++) {
+ 		if(players.get(i).getCharacter() instanceof Soldier) {
  			return true;
  		}
  	}
 		return false;
  }
 	private boolean engineerExists() {
- 	for (int i=0; i<4; i++) {
- 		if(this.players.get(i).getCharacter() instanceof Engineer) {
+ 	for (int i=0; i<players.size(); i++) {
+ 		if(players.get(i).getCharacter() instanceof Engineer) {
  			return true;
  		}
  	}
@@ -177,6 +176,7 @@ public class WebGame {
     		break;
     	case Safe:
     		action = player.toString() + " just moved in a safe room";
+    		addMessage(action);
     		break;
     	default:
     		break;
@@ -257,12 +257,11 @@ public class WebGame {
         return players.get(activePlayerRank);
     }
 
-    public static Player getNextPlayer(){
+    public static void setNextPlayer(){
         activePlayerRank++;
         if(activePlayerRank >= players.size()){
             activePlayerRank = 0;
         }
-        return getActivePlayer();
     }
 
     public BoardMap getMap(){
@@ -299,16 +298,14 @@ public class WebGame {
     public String unsafeDraw(Player player) {	//Utiliser random() pour effectuer les actions des unsafes room
     	String action = new String();
     	Random rand = new Random(); 
-    	int nombreAleatoire = rand.nextInt(3) + 1;
+    	int nombreAleatoire = rand.nextInt(2) + 1;
     	switch(nombreAleatoire) {
     		case 1:	//Silence
     			action = "*Silence*";
     			break;
     		case 2:
     			action = "A strange noise is coming from room " + player.getCharacter().getCoordinate().toString();
-    			break;
-    		case 3:
-    			action = gameService.askPlayerWhereMakeNoise(map.getHeight(), map.getWidth()).toString();
+    			addMessage(action);
     			break;
     			
     	}
@@ -330,20 +327,20 @@ public class WebGame {
     		map.getMap().get(player.getCharacter().getCoordinate()).setType(RoomType.Condemned);
     		action = "You have escaped !";
     	}
-    	
+    	addMessage(action);
     	return action;
     }
     
     public List<String> attackAction(Player player) { //Gère l'attaque du joueur
     	List<String> actions = new ArrayList<>();
-    	actions.add(player.toString() + "attacked on room " + player.getCharacter().getCoordinate().toString());
+    	actions.add(player.toString() + " attacked on room " + player.getCharacter().getCoordinate().toString());
     	for(int i=0;i<players.size();i++) {
     		if(players.get(i).getCharacter().getCoordinate().equals(player.getCharacter().getCoordinate())) {
     			if(!(players.get(i).getCharacter() instanceof Praetorian) && !(player.equals(players.get(i)))) {
     				players.get(i).getCharacter().setAlive(false);
     				players.get(i).getCharacter().setPlaying(false);
     				players.get(i).getCharacter().setCoordinate(new Coordinate(10,6));
-    				actions.add(player.toString() + "killed " + players.get(i).toString());
+    				actions.add(player.toString() + " killed " + players.get(i).toString());
     			}
     		}
     	}
@@ -351,6 +348,7 @@ public class WebGame {
     		((Soldier) player.getCharacter()).setCanAttack(false);
     		actions.add(player.toString() + " cannot attack anymore...");
     	}
+    	messages.addAll(actions);
     	return actions;
     }
     
@@ -362,5 +360,17 @@ public class WebGame {
     	
     	//On change les coordonnées du joueur
     	player.getCharacter().setCoordinate(coord);
+    }
+    
+    public List<Player> getPlayers(){
+    	return players;
+    }
+    
+    public void addMessage(String message) {
+    	messages.add(message);
+    }
+    
+    public List<String> getMessages(){
+    	return messages;
     }
 }

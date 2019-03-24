@@ -9,6 +9,8 @@
 <title>Map displayer</title>
 </head>
 <body>
+<p>C'est au tour de ${playerName} de jouer !</p>
+<p>Tu es un ${playerType}</p>
 <table>
 <tr>
 <c:forEach items="${line1}" var="item">
@@ -97,7 +99,23 @@
 <button type="submit" value="${item}" name="playerChoice">${item}</button>
 </c:forEach>
 </form>
-
+<form action="interaction/action" method="post" class="choiceForm">
+<c:forEach items="${actions}" var="item">
+<button type="submit" value="${item}" name="playerChoice">${item}</button>
+</c:forEach>
+</form>
+<c:forEach items="${messages}" var="item">
+<p>${item}</p>
+</c:forEach>
+<c:set value="${finDuTour}" var="endGame"/>
+<c:if test="${endGame }">
+<form action="../map" method="post">
+<button type="submit">Fin du Tour</button>
+</form>
+</c:if>
+<c:forEach items="${historic}" var="item">
+<p>${item}</p>
+</c:forEach>
 
 </body>
 </html>

@@ -7,12 +7,13 @@
 </head>
 <body>
 <center>
-
+	<c:if test="${joueurMax}">
     <form action="game" method="post">
       <p>Players Name:</p>
         <input name="playerName">
         <input type="submit" value="addPlayer" name="addPlayer">
     </form>
+    </c:if>
     <table cellpadding="5" border="1">
         <tr>
             <td>Players</td>

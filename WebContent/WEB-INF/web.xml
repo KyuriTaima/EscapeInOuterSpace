@@ -24,5 +24,6 @@
   <servlet-mapping>
     <servlet-name>InteractionServlet</servlet-name>
     <url-pattern>/game/interaction</url-pattern>
+    <url-pattern>/game/interaction/action</url-pattern>
   </servlet-mapping>
 </web-app>

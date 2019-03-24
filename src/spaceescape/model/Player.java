@@ -21,6 +21,13 @@ public class Player {
 		result = prime * result + ((surname == null) ? 0 : surname.hashCode());
 		return result;
 	}
+	
+	
+
+	@Override
+	public String toString() {
+		return surname;
+	}
 
 	@Override
 	public boolean equals(Object obj) {

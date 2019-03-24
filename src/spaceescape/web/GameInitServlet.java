@@ -24,6 +24,12 @@ public class GameInitServlet extends HttpServlet{
 	
 	protected void doGet (HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		request.setAttribute("players", playersName);
+		if(playersName.size() == 4) {
+			request.setAttribute("joueurMax", false);
+		}
+		else {
+			request.setAttribute("joueurMax", true);
+		}
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/View/initGame.jsp");
 		
 		try {
